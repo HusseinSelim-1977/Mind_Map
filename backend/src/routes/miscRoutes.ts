@@ -1,0 +1,10 @@
+import { Router } from "express";
+import { addComment, getNotifications, markNotificationRead, getAuditLogs } from "../controllers/miscController";
+import { authMiddleware } from "../middleware/auth";
+const router = Router();
+router.use(authMiddleware);
+router.post("/comments", addComment);
+router.get("/notifications", getNotifications);
+router.patch("/notifications/:id/read", markNotificationRead);
+router.get("/audit", getAuditLogs);
+export default router;
