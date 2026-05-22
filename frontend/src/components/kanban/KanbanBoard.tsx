@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   DndContext,
   DragOverlay,
@@ -15,7 +15,6 @@ import {
   arrayMove,
   sortableKeyboardCoordinates,
 } from "@dnd-kit/sortable";
-import { COLUMNS, Task, TaskStatus } from "./types";
 import { KanbanColumn } from "./KanbanColumn";
 import { KanbanCard } from "./KanbanCard";
 import { createPortal } from "react-dom";
@@ -24,20 +23,71 @@ import { Button } from "../ui/Button";
 import { Modal, ModalContent, ModalHeader, ModalTitle } from "../ui/Modal";
 import { TaskForm } from "../tasks/TaskForm";
 import { TaskDetail } from "../tasks/TaskDetail";
+import api from "../../lib/api";
 
-const MOCK_TASKS: Task[] = [
-  { id: "1", title: "Implement Auth", description: "Login/Signup with JWT", priority: "high", status: "TODO" },
-  { id: "2", title: "Design System", description: "Tokens and primitives", priority: "medium", status: "IN_PROGRESS" },
-  { id: "3", title: "Kanban Board", description: "D&D with dnd-kit", priority: "high", status: "IN_PROGRESS" },
-  { id: "4", title: "API Mocks", description: "MSW setup", priority: "low", status: "TODO" },
+type TaskStatus = 'TODO' | 'IN_PROGRESS' | 'IN_REVIEW' | 'DONE';
+
+interface Task {
+  id: string;
+  title: string;
+  description?: string;
+  priority: 'low' | 'medium' | 'high';
+  status: TaskStatus;
+  assignee?: {
+    name: string;
+    avatar?: string;
+  };
+}
+
+interface Column {
+  id: TaskStatus;
+  title: string;
+}
+
+const COLUMNS: Column[] = [
+  { id: 'TODO', title: 'To Do' },
+  { id: 'IN_PROGRESS', title: 'In Progress' },
+  { id: 'IN_REVIEW', title: 'In Review' },
+  { id: 'DONE', title: 'Done' },
 ];
 
-export function KanbanBoard() {
-  const [tasks, setTasks] = useState<Task[]>(MOCK_TASKS);
+interface BackendTask {
+  taskId: string;
+  title: string;
+  description?: string;
+  status: string;
+  priority: string;
+  assigneeId?: string;
+  teamId?: string;
+  projectId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface KanbanBoardProps {
+  tasks?: BackendTask[];
+}
+
+function convertToKanbanTask(backendTask: BackendTask): Task {
+  return {
+    id: backendTask.taskId,
+    title: backendTask.title,
+    description: backendTask.description,
+    priority: backendTask.priority.toLowerCase(),
+    status: backendTask.status as TaskStatus,
+  };
+}
+
+export function KanbanBoard({ tasks: backendTasks = [] }: KanbanBoardProps) {
+  const [tasks, setTasks] = useState<Task[]>(() => backendTasks.map(convertToKanbanTask));
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+
+  useEffect(() => {
+    setTasks(backendTasks.map(convertToKanbanTask));
+  }, [backendTasks]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -88,7 +138,7 @@ export function KanbanBoard() {
     }
   }
 
-  function onDragEnd(event: DragEndEvent) {
+  async function onDragEnd(event: DragEndEvent) {
     setActiveTask(null);
     const { active, over } = event;
     if (!over) return;
@@ -103,7 +153,12 @@ export function KanbanBoard() {
       const overIndex = tasks.findIndex((t) => t.id === overId);
 
       if (tasks[activeIndex].status !== tasks[overIndex].status) {
-        tasks[activeIndex].status = tasks[overIndex].status;
+        const newStatus = tasks[overIndex].status;
+        tasks[activeIndex].status = newStatus;
+        
+        // Update backend
+        api.patch(`/tasks/${activeId}/status`, { status: newStatus }).catch(console.error);
+        
         return arrayMove(tasks, activeIndex, overIndex - 1);
       }
 

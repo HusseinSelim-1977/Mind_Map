@@ -1,8 +1,21 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Task } from "./types";
 import { cn } from "../../lib/utils";
 import { Badge, Avatar } from "../ui/Misc";
+
+type TaskStatus = 'TODO' | 'IN_PROGRESS' | 'IN_REVIEW' | 'DONE';
+
+interface Task {
+  id: string;
+  title: string;
+  description?: string;
+  priority: 'low' | 'medium' | 'high';
+  status: TaskStatus;
+  assignee?: {
+    name: string;
+    avatar?: string;
+  };
+}
 
 interface KanbanCardProps {
   task: Task;

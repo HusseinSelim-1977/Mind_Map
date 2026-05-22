@@ -1,6 +1,6 @@
 import * as React from "react"
 import { Calendar as CalendarIcon } from "lucide-react"
-import { cn } from "../lib/utils"
+import { cn } from "../../lib/utils"
 
 export interface DatePickerProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;

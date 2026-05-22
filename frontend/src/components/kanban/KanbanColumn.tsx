@@ -3,9 +3,27 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { Column, Task } from "./types";
 import { KanbanCard } from "./KanbanCard";
 import { cn } from "../../lib/utils";
+
+type TaskStatus = 'TODO' | 'IN_PROGRESS' | 'IN_REVIEW' | 'DONE';
+
+interface Task {
+  id: string;
+  title: string;
+  description?: string;
+  priority: 'low' | 'medium' | 'high';
+  status: TaskStatus;
+  assignee?: {
+    name: string;
+    avatar?: string;
+  };
+}
+
+interface Column {
+  id: TaskStatus;
+  title: string;
+}
 
 interface KanbanColumnProps {
   column: Column;

@@ -1,4 +1,16 @@
-import { Task, TaskStatus } from "../components/kanban/types";
+type TaskStatus = 'TODO' | 'IN_PROGRESS' | 'IN_REVIEW' | 'DONE';
+
+interface Task {
+  id: string;
+  title: string;
+  description?: string;
+  priority: 'low' | 'medium' | 'high';
+  status: TaskStatus;
+  assignee?: {
+    name: string;
+    avatar?: string;
+  };
+}
 
 export interface User {
   id: string;

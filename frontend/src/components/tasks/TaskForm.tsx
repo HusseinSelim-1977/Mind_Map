@@ -1,10 +1,21 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { taskSchema, TaskFormValues } from "./schema";
+import { z } from "zod";
 import { Button } from "../ui/Button";
 import { Input, Textarea } from "../ui/Input";
 import { DatePicker } from "../ui/DatePicker";
 import { cn } from "../../lib/utils";
+
+const taskSchema = z.object({
+  title: z.string().min(1, "Title is required").max(100),
+  description: z.string().max(500).optional(),
+  priority: z.enum(["low", "medium", "high"]),
+  status: z.enum(["TODO", "IN_PROGRESS", "IN_REVIEW", "DONE"]),
+  assignee: z.string().optional(),
+  deadline: z.string().optional(),
+});
+
+type TaskFormValues = z.infer<typeof taskSchema>;
 
 interface TaskFormProps {
   onSubmit: (data: TaskFormValues) => void;

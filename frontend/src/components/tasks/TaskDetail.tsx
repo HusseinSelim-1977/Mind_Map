@@ -1,8 +1,21 @@
-import { Task } from "../kanban/types";
 import { Badge, Avatar } from "../ui/Misc";
 import { Button } from "../ui/Button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/Tabs";
 import { CommentThread } from "./CommentThread";
+
+type TaskStatus = 'TODO' | 'IN_PROGRESS' | 'IN_REVIEW' | 'DONE';
+
+interface Task {
+  id: string;
+  title: string;
+  description?: string;
+  priority: 'low' | 'medium' | 'high';
+  status: TaskStatus;
+  assignee?: {
+    name: string;
+    avatar?: string;
+  };
+}
 import { AuditLog } from "./AuditLog";
 import { X, Calendar, Clock, Paperclip, MessageSquare, History } from "lucide-react";
 
