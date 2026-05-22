@@ -26,6 +26,3 @@ Award-caliber frontend (Awwwards quality) with a robust Node.js/Prisma backend.
 1. `cd frontend`
 2. `npm install`
 3. `npm run dev`
-
-## Quota Usage
-Total project consumption: ~70% (within approved extension).
