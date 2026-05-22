@@ -1,10 +1,13 @@
 import { Router } from "express";
-import { getTasks, createTask, updateTask, deleteTask } from "../controllers/taskController";
+import { getTasks, getTask, createTask, updateTask, deleteTask, updateTaskStatus } from "../controllers/taskController";
 import { authMiddleware } from "../middleware/auth";
+import { requireManager } from "../middleware/roleGuard";
 const router = Router();
 router.use(authMiddleware);
 router.get("/", getTasks);
-router.post("/", createTask);
+router.get("/:id", getTask);
+router.post("/", requireManager, createTask);
 router.patch("/:id", updateTask);
-router.delete("/:id", deleteTask);
+router.patch("/:id/status", updateTaskStatus);
+router.delete("/:id", requireManager, deleteTask);
 export default router;

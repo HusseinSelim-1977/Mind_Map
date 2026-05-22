@@ -1,11 +1,13 @@
 import { Router } from "express";
-import { getProjects, createProject, getTeams, createTeam } from "../controllers/orgController";
+import { getProjects, getProject, createProject, getTeams, getTeam, createTeam } from "../controllers/orgController";
 import { authMiddleware } from "../middleware/auth";
-import { roleGuard } from "../middleware/roleGuard";
+import { requireManager } from "../middleware/roleGuard";
 const router = Router();
 router.use(authMiddleware);
 router.get("/projects", getProjects);
-router.post("/projects", roleGuard(["manager", "admin"]), createProject);
+router.get("/projects/:id", getProject);
+router.post("/projects", requireManager, createProject);
 router.get("/teams", getTeams);
-router.post("/teams", roleGuard(["manager", "admin"]), createTeam);
+router.get("/teams/:id", getTeam);
+router.post("/teams", requireManager, createTeam);
 export default router;
